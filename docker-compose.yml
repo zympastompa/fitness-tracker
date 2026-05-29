@@ -1,0 +1,11 @@
+services:
+  fitness-tracker:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      FITNESS_TRACKER_HOST: 0.0.0.0
+      FITNESS_TRACKER_PORT: 8000
+      FITNESS_TRACKER_DB_PATH: /app/data/fitness_tracker.sqlite3
+    volumes:
+      - ./data:/app/data

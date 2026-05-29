@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Fitness Tracker</title>
+    <link rel="stylesheet" href="/static/styles.css">
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="rail">
+        <div class="brand">
+          <div class="brand-mark">FT</div>
+          <div>
+            <div class="brand-kicker">local-first</div>
+            <div class="brand-title">Fitness Tracker</div>
+          </div>
+        </div>
+
+        <section class="rail-section">
+          <div class="section-label">Программа</div>
+          <div class="workout-tabs" id="workoutTabs"></div>
+        </section>
+
+        <details class="rail-details">
+          <summary>Правила для спины</summary>
+          <div class="rules-list" id="safetyRules"></div>
+        </details>
+
+        <button class="rail-settings" id="settingsOpen" type="button" aria-label="Настройки" title="Настройки">⚙ Настройки</button>
+      </aside>
+
+      <main class="workspace">
+        <header class="command-bar">
+          <label class="control-field" for="sessionDate">
+            <span>Дата</span>
+            <input type="date" id="sessionDate">
+          </label>
+
+          <label class="control-field session-select" for="sessionPicker">
+            <span>Сессия</span>
+            <select id="sessionPicker"></select>
+          </label>
+
+          <button class="command-button secondary accent" id="newSession" type="button">Начать тренировку</button>
+          <button class="command-button secondary" id="fillWorkout" type="button">Заполнить тренировку</button>
+          <button class="command-button primary" id="completeSession" type="button">Завершить тренировку</button>
+          <button class="command-button danger subtle" id="deleteSession" type="button">Удалить</button>
+        </header>
+
+        <section class="session-hero" id="sessionHero">
+          <div class="session-title-block">
+            <div class="eyebrow" id="cycleTitle">8 недель</div>
+            <h1 id="workoutTitle">Тренировка</h1>
+            <p id="workoutFocus"></p>
+          </div>
+          <div class="session-side">
+            <div class="status-badge" id="sessionBadge">Нет сессии</div>
+            <div class="metric-board" id="metricBoard"></div>
+          </div>
+        </section>
+
+        <section class="empty-state" id="emptyState" hidden>
+          <div>
+            <div class="section-label">Старт</div>
+            <h2 id="emptyTitle">Сегодня еще нет тренировки</h2>
+            <p>История и прошлые веса подтянутся после создания сессии.</p>
+          </div>
+          <button class="command-button primary" id="emptyAction" type="button">Начать тренировку</button>
+        </section>
+
+        <details class="warmup-strip" id="warmupDetails">
+          <summary>
+            <span>Разминка перед тренировкой</span>
+            <small>8-10 минут</small>
+          </summary>
+          <div class="warmup-grid" id="warmupGrid"></div>
+        </details>
+
+        <div class="timer-dock is-idle" id="timerDock" aria-live="polite">
+          <button class="icon-button" id="closeTimer" type="button" aria-label="Закрыть таймер" title="Закрыть таймер">×</button>
+          <div class="timer-ring" id="timerRing">
+            <span id="timerValue">00:00</span>
+          </div>
+          <div class="timer-copy">
+            <div class="timer-label" id="timerLabel">Перерыв</div>
+            <div class="timer-exercise" id="timerExercise">Следующий подход скоро</div>
+            <div class="timer-next-text" id="timerNextText"></div>
+            <div class="timer-controls">
+              <button class="mini-button" id="timerMinus" type="button">-15 сек</button>
+              <button class="mini-button" id="timerPlus" type="button">+30 сек</button>
+              <button class="mini-button" id="timerPause" type="button">Пауза</button>
+              <button class="mini-button" id="timerSkip" type="button">Пропустить</button>
+              <button class="mini-button primary" id="timerNext" type="button" hidden>К подходу</button>
+            </div>
+          </div>
+        </div>
+
+        <section class="exercise-stack" id="exerciseList"></section>
+      </main>
+
+      <aside class="intel">
+        <section class="notes-panel">
+          <div class="section-label">Заметки</div>
+          <textarea id="sessionNotes" rows="5" placeholder="Самочувствие, сон, боль, что поменять в следующий раз"></textarea>
+          <button class="command-button secondary full" id="saveSessionNotes" type="button">Сохранить заметки</button>
+        </section>
+
+        <section class="history-panel">
+          <div class="panel-head">
+            <div>
+              <div class="section-label">История</div>
+              <h2>Последние сессии</h2>
+            </div>
+            <button class="mini-button" id="historyRefresh" type="button">Обновить</button>
+          </div>
+          <div class="history-list" id="historyList"></div>
+        </section>
+      </aside>
+    </div>
+
+    <div class="settings-backdrop" id="settingsPanel" hidden>
+      <section class="settings-drawer" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+        <div class="panel-head">
+          <div>
+            <div class="section-label">Настройки</div>
+            <h2 id="settingsTitle">Данные</h2>
+          </div>
+          <button class="icon-button" id="settingsClose" type="button" aria-label="Закрыть настройки" title="Закрыть настройки">×</button>
+        </div>
+        <p>Данные хранятся локально на этом устройстве. Резервная копия помогает сохранить прогресс перед экспериментами или переносом проекта.</p>
+        <div class="settings-actions">
+          <button class="command-button primary" id="backupDb" type="button">Создать резервную копию</button>
+          <a class="command-link" href="/api/export-db">Скачать файл данных</a>
+        </div>
+      </section>
+    </div>
+
+    <div class="toast-host" id="toastHost"></div>
+
+    <template id="exerciseTemplate">
+      <article class="exercise-card">
+        <div class="exercise-head">
+          <div>
+            <div class="exercise-meta"></div>
+            <h2></h2>
+            <p></p>
+            <div class="previous-summary"></div>
+          </div>
+          <div class="rest-chip"></div>
+        </div>
+        <div class="set-grid"></div>
+        <div class="exercise-actions">
+          <button class="command-button secondary fill-empty" type="button">Заполнить пустые</button>
+          <button class="command-button secondary add-set" type="button">Добавить подход</button>
+          <input class="exercise-note" type="text" placeholder="Заметка по упражнению">
+        </div>
+      </article>
+    </template>
+
+    <script type="module" src="/static/js/main.js"></script>
+  </body>
+</html>
