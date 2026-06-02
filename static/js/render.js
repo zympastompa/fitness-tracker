@@ -73,6 +73,8 @@ export function renderWorkoutTabs(actions) {
     button.type = "button";
     button.className = `workout-tab ${key === state.workoutKey ? "is-active" : ""}`;
     button.dataset.accent = workout.accent || "cyan";
+    button.dataset.testid = "workout-tab";
+    button.dataset.workoutKey = key;
     button.title = `${workout.title}: ${workout.focus}`;
     button.innerHTML = `
       <div class="workout-letter">${key}</div>
@@ -169,6 +171,7 @@ function renderExercises(actions) {
     const maxExisting = Math.max(0, ...Object.keys(existingSets).map((value) => Number(value)));
     const rowCount = Math.max(exercise.target_sets, maxExisting);
     card.dataset.exerciseId = exercise.id;
+    card.dataset.testid = "exercise-card";
     card.style.setProperty("--card-accent", accentColor(workout.accent));
     meta.textContent = `#${String(index + 1).padStart(2, "0")} · ${exercise.target}${last ? ` · прошлый ${last}` : ""}`;
     title.textContent = exercise.name;
@@ -201,6 +204,7 @@ function buildSetRow(exercise, setIndex, setData, actions) {
   row.dataset.exerciseId = exercise.id;
   row.dataset.setIndex = String(setIndex);
   row.dataset.completed = completed ? "true" : "false";
+  row.dataset.testid = "set-row";
   row.innerHTML = `
     <div class="set-number">${String(setIndex).padStart(2, "0")}</div>
     <div class="weight-cell">
@@ -214,12 +218,12 @@ function buildSetRow(exercise, setIndex, setData, actions) {
     ${fieldMarkup("повт", "reps", actualSetValue(setData, "reps"), "1", placeholderForPrevious(previous, "reps"))}
     <label class="field">
       <span>RIR</span>
-      <select data-field="rir">${rirOptions(setData?.rir)}</select>
+      <select data-field="rir" data-testid="set-rir-input">${rirOptions(setData?.rir)}</select>
     </label>
     <div class="set-record-cell">
       ${recordMarkup(completed, exercise, setData)}
     </div>
-    <button class="delete-set" type="button" aria-label="Удалить подход" title="Удалить подход">×</button>
+    <button class="delete-set" type="button" aria-label="Удалить подход" title="Удалить подход" data-testid="set-delete-button">×</button>
   `;
 
   row.querySelectorAll("input, select").forEach((input) => {
@@ -320,14 +324,14 @@ function buildSetRow(exercise, setIndex, setData, actions) {
 function recordMarkup(completed, exercise, setData) {
   if (completed) {
     return `
-      <div class="set-completed-badge" aria-label="Подход выполнен">✓ Выполнен</div>
-      <button class="tiny-button uncomplete-set" type="button">Отменить</button>
+      <div class="set-completed-badge" aria-label="Подход выполнен" data-testid="set-completed-badge">✓ Выполнен</div>
+      <button class="tiny-button uncomplete-set" type="button" data-testid="set-uncomplete-button">Отменить</button>
     `;
   }
   const disabled = !hasPreviousValue(actualSetValue(setData, "reps")) ? " disabled" : "";
   return `
-    <button class="tiny-button repeat-set" type="button" title="Повторить прошлый доступный подход">Повторить</button>
-    <button class="record-set" type="button" title="Записать подход и запустить отдых" aria-label="Записать подход и запустить отдых"${disabled}>Записать</button>
+    <button class="tiny-button repeat-set" type="button" title="Повторить прошлый доступный подход" data-testid="set-repeat-button">Повторить</button>
+    <button class="record-set" type="button" title="Записать подход и запустить отдых" aria-label="Записать подход и запустить отдых" data-testid="set-save-button"${disabled}>Записать</button>
     <span class="record-hint">запустит отдых ${formatRest(exercise.rest_seconds)}</span>
   `;
 }
@@ -353,7 +357,7 @@ function fieldMarkup(label, field, value, step, placeholder = "") {
   return `
     <label class="field">
       <span>${label}</span>
-      <input data-field="${field}" type="number" min="0" step="${step}" value="${safeValue}"${placeholderAttr}>
+      <input data-field="${field}" data-testid="set-${field}-input" type="number" min="0" step="${step}" value="${safeValue}"${placeholderAttr}>
     </label>
   `;
 }
@@ -439,17 +443,21 @@ export function renderHistory(actions) {
     const workout = state.plan.workouts[item.workout_key];
     const card = document.createElement("div");
     card.className = `history-item ${item.completed_at ? "is-complete" : ""} ${Number(state.selectedSessionId) === Number(item.session_id) ? "is-current" : ""}`;
+    card.dataset.testid = "history-item";
+    card.dataset.sessionId = String(item.session_id);
+    card.dataset.workoutKey = item.workout_key;
+    card.dataset.sessionDate = item.date;
     card.innerHTML = `
       <div class="history-topline">
         <span>${formatSessionLabel(item)}</span>
         <span>${item.completed_at ? "завершена" : "в работе"}</span>
       </div>
       <div class="history-actions">
-        <button class="history-open" type="button">
+        <button class="history-open" type="button" data-testid="history-open-button">
           <strong>${workout?.title || item.workout_key}</strong>
           <span>${historyDurationText(item)} · ${item.summary.sets} подходов · ${roundVolume(item.summary.volume)} кг</span>
         </button>
-        <button class="history-delete" type="button" aria-label="Удалить сессию" title="Удалить сессию">Удалить</button>
+        <button class="history-delete" type="button" aria-label="Удалить сессию" title="Удалить сессию" data-testid="history-delete-button">Удалить</button>
       </div>
     `;
     card.querySelector(".history-open").addEventListener("click", () => actions.openHistorySession(item));
@@ -702,6 +710,7 @@ function accentColor(accent) {
 export function showToast(message, type = "success") {
   const toast = document.createElement("div");
   toast.className = `toast is-${type}`;
+  toast.dataset.testid = "toast";
   toast.textContent = message;
   els.toastHost.append(toast);
   setTimeout(() => toast.remove(), 4200);

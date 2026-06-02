@@ -11,7 +11,12 @@ The project is intentionally simple at runtime, but still structured like a main
 * layered backend structure
 * SQLite migrations
 * repository and service layers
-* API tests with `unittest`
+* backend/API tests with Python `unittest`
+* UI/E2E tests with Playwright TypeScript
+* page/component objects for browser automation
+* fixture-driven setup and cleanup
+* isolated SQLite database for E2E runs
+* CI quality gates
 * vanilla frontend modules
 * Docker support
 * local backups and database export
@@ -26,12 +31,17 @@ Backup and export features are available from the settings screen, but the main 
 
 The app has no Python runtime dependencies.
 
-Required:
+Required for the app:
 
 * Python 3.10+
 * a browser
 
-Development and test commands use only the Python standard library.
+Required for UI/E2E tests:
+
+* Node.js 18+
+* Playwright browsers
+
+The Python app and `unittest` suite use only the Python standard library. Browser E2E tests use Node.js and Playwright as development dependencies only.
 
 ## Features
 
@@ -83,7 +93,7 @@ make run
 
 ## Tests
 
-Run the test suite:
+Run backend/API tests:
 
 ```bash
 python -m unittest discover -s tests
@@ -95,6 +105,99 @@ Or:
 make test
 ```
 
+### E2E / UI Automation
+
+The UI automation layer uses Playwright with TypeScript. It is a development/test dependency only and is separate from the Python application runtime.
+
+Install Node dependencies and Playwright browsers:
+
+```bash
+npm ci
+npx playwright install chromium
+```
+
+Run TypeScript checks:
+
+```bash
+npm run e2e:typecheck
+```
+
+Run the E2E suite:
+
+```bash
+npm run e2e
+```
+
+Run with a visible browser:
+
+```bash
+npm run e2e:headed
+```
+
+Open the Playwright report:
+
+```bash
+npm run e2e:report
+```
+
+When Playwright starts the app itself, it recreates `e2e/.tmp/` and runs the Python server with:
+
+```text
+FITNESS_TRACKER_DB_PATH=e2e/.tmp/fitness_tracker_e2e.sqlite3
+```
+
+This keeps E2E SQLite data separate from local development data.
+
+The Playwright suite currently runs with one worker. The app uses one isolated SQLite file per E2E run, and single-worker execution keeps session setup, cleanup, and previous-session test data predictable until parallel database isolation is introduced.
+
+Current E2E coverage includes:
+
+* start session
+* save set
+* repeat set
+* fill empty sets
+* fill workout
+* rest timer controls
+* session notes and exercise notes
+* history navigation
+* settings backup and database export
+* responsive smoke checks
+
+## E2E Architecture
+
+The browser automation layer is organized to keep test scenarios readable and UI details isolated.
+
+```text
+e2e/
+  api/              typed API client for setup and cleanup
+  assertions/       reusable UI/layout assertions
+  data/             deterministic test data builders
+  fixtures/         Playwright fixtures
+  flows/            domain-level workout flows
+  pages/            page and component objects
+  tests/            Playwright TypeScript E2E specs
+```
+
+Main ideas:
+
+* specs describe user scenarios;
+* page/component objects hide UI selectors and repeated browser actions;
+* domain flows compose several UI/API operations for common workout scenarios;
+* API client is used for setup and cleanup, not as a replacement for real UI checks;
+* E2E data is isolated through a separate SQLite database;
+* created sessions are tracked and deleted after each test through the existing `/api/delete-session` endpoint;
+* TypeScript is checked separately with `tsc`;
+* CI uploads Playwright artifacts only when E2E tests fail.
+
+The fixture layer exposes:
+
+* tracked API client;
+* top-level UI page object;
+* domain flows;
+* cleanup context.
+
+This keeps tests focused on behavior while still making setup, cleanup and diagnostics explicit.
+
 ## Quality Gates
 
 Recommended checks before publishing or changing the project:
@@ -102,6 +205,8 @@ Recommended checks before publishing or changing the project:
 ```bash
 python -m compileall fitness_tracker tests main.py
 python -m unittest discover -s tests
+npm run e2e:typecheck
+npm run e2e
 docker compose config
 ```
 
@@ -117,7 +222,21 @@ Then open:
 http://127.0.0.1:8000
 ```
 
-The test suite uses `unittest`, temporary directories, and temporary SQLite files. Browser/e2e tests are intentionally not included at this stage.
+CI runs Python compile checks, Python `unittest`, Docker Compose validation, and a separate Playwright E2E job after the Python job passes.
+
+The E2E job:
+
+* installs Node dependencies with `npm ci`;
+* installs the Playwright Chromium browser;
+* runs TypeScript checks with `npm run e2e:typecheck`;
+* runs Playwright tests with `npm run e2e`.
+
+On E2E failure, CI uploads:
+
+* `playwright-report/`
+* `test-results/`
+
+Playwright traces, screenshots, videos, and error context are retained through those test result artifacts when a test fails.
 
 ## Data Storage
 
@@ -293,7 +412,17 @@ static/
   styles.css
   js/               vanilla ES modules
 
-tests/              unittest backend/db/API tests
+tests/
+  backend/db/API tests with Python unittest
+
+e2e/
+  api/              typed API client for setup and cleanup
+  assertions/       reusable UI/layout assertions
+  data/             deterministic test data builders
+  fixtures/         Playwright fixtures
+  flows/            domain-level workout flows
+  pages/            page and component objects
+  tests/            Playwright TypeScript E2E tests
 ```
 
 ## Roadmap
@@ -302,8 +431,20 @@ tests/              unittest backend/db/API tests
 * CSV export.
 * PWA/offline install.
 * Optional auth for home-server usage.
-* UI/e2e tests as a separate layer.
+* Parallel E2E execution with per-worker database isolation.
 
 ## Positioning
 
-This project is intentionally small and local-first. It is not trying to be a commercial fitness platform. The goal is to show a maintainable, testable, practical application with a simple runtime model and a real personal workflow behind it.
+This project is intentionally small and local-first. It is not trying to be a commercial fitness platform.
+
+The goal is to show a maintainable, testable, practical application with a simple runtime model and a real personal workflow behind it.
+
+From the QA/SDET side, the project demonstrates:
+
+* backend/API checks with Python `unittest`;
+* UI/E2E automation with Playwright TypeScript;
+* isolated test data;
+* setup and cleanup strategy;
+* page/component object architecture;
+* CI quality gates;
+* a real user flow instead of synthetic demo scenarios.

@@ -19,7 +19,7 @@
 
         <section class="rail-section">
           <div class="section-label">Программа</div>
-          <div class="workout-tabs" id="workoutTabs"></div>
+          <div class="workout-tabs" id="workoutTabs" data-testid="workout-tabs"></div>
         </section>
 
         <details class="rail-details">
@@ -27,14 +27,14 @@
           <div class="rules-list" id="safetyRules"></div>
         </details>
 
-        <button class="rail-settings" id="settingsOpen" type="button" aria-label="Настройки" title="Настройки">⚙ Настройки</button>
+        <button class="rail-settings" id="settingsOpen" type="button" aria-label="Настройки" title="Настройки" data-testid="settings-open-button">⚙ Настройки</button>
       </aside>
 
       <main class="workspace">
         <header class="command-bar">
           <label class="control-field" for="sessionDate">
             <span>Дата</span>
-            <input type="date" id="sessionDate">
+            <input type="date" id="sessionDate" data-testid="session-date-input">
           </label>
 
           <label class="control-field session-select" for="sessionPicker">
@@ -42,21 +42,21 @@
             <select id="sessionPicker"></select>
           </label>
 
-          <button class="command-button secondary accent" id="newSession" type="button">Начать тренировку</button>
-          <button class="command-button secondary" id="fillWorkout" type="button">Заполнить тренировку</button>
-          <button class="command-button primary" id="completeSession" type="button">Завершить тренировку</button>
-          <button class="command-button danger subtle" id="deleteSession" type="button">Удалить</button>
+          <button class="command-button secondary accent" id="newSession" type="button" data-testid="workout-start-button">Начать тренировку</button>
+          <button class="command-button secondary" id="fillWorkout" type="button" data-testid="workout-fill-button">Заполнить тренировку</button>
+          <button class="command-button primary" id="completeSession" type="button" data-testid="session-complete-button">Завершить тренировку</button>
+          <button class="command-button danger subtle" id="deleteSession" type="button" data-testid="session-delete-button">Удалить</button>
         </header>
 
-        <section class="session-hero" id="sessionHero">
+        <section class="session-hero" id="sessionHero" data-testid="active-session-area">
           <div class="session-title-block">
             <div class="eyebrow" id="cycleTitle">8 недель</div>
             <h1 id="workoutTitle">Тренировка</h1>
             <p id="workoutFocus"></p>
           </div>
           <div class="session-side">
-            <div class="status-badge" id="sessionBadge">Нет сессии</div>
-            <div class="metric-board" id="metricBoard"></div>
+            <div class="status-badge" id="sessionBadge" data-testid="session-status">Нет сессии</div>
+            <div class="metric-board" id="metricBoard" data-testid="session-metrics"></div>
           </div>
         </section>
 
@@ -77,21 +77,21 @@
           <div class="warmup-grid" id="warmupGrid"></div>
         </details>
 
-        <div class="timer-dock is-idle" id="timerDock" aria-live="polite">
-          <button class="icon-button" id="closeTimer" type="button" aria-label="Закрыть таймер" title="Закрыть таймер">×</button>
+        <div class="timer-dock is-idle" id="timerDock" aria-live="polite" data-testid="rest-timer">
+          <button class="icon-button" id="closeTimer" type="button" aria-label="Закрыть таймер" title="Закрыть таймер" data-testid="timer-close-button">×</button>
           <div class="timer-ring" id="timerRing">
-            <span id="timerValue">00:00</span>
+            <span id="timerValue" data-testid="timer-value">00:00</span>
           </div>
           <div class="timer-copy">
             <div class="timer-label" id="timerLabel">Перерыв</div>
             <div class="timer-exercise" id="timerExercise">Следующий подход скоро</div>
             <div class="timer-next-text" id="timerNextText"></div>
             <div class="timer-controls">
-              <button class="mini-button" id="timerMinus" type="button">-15 сек</button>
-              <button class="mini-button" id="timerPlus" type="button">+30 сек</button>
-              <button class="mini-button" id="timerPause" type="button">Пауза</button>
-              <button class="mini-button" id="timerSkip" type="button">Пропустить</button>
-              <button class="mini-button primary" id="timerNext" type="button" hidden>К подходу</button>
+              <button class="mini-button" id="timerMinus" type="button" data-testid="timer-minus-button">-15 сек</button>
+              <button class="mini-button" id="timerPlus" type="button" data-testid="timer-plus-button">+30 сек</button>
+              <button class="mini-button" id="timerPause" type="button" data-testid="timer-pause-button">Пауза</button>
+              <button class="mini-button" id="timerSkip" type="button" data-testid="timer-skip-button">Пропустить</button>
+              <button class="mini-button primary" id="timerNext" type="button" hidden data-testid="timer-next-set-button">К подходу</button>
             </div>
           </div>
         </div>
@@ -102,8 +102,8 @@
       <aside class="intel">
         <section class="notes-panel">
           <div class="section-label">Заметки</div>
-          <textarea id="sessionNotes" rows="5" placeholder="Самочувствие, сон, боль, что поменять в следующий раз"></textarea>
-          <button class="command-button secondary full" id="saveSessionNotes" type="button">Сохранить заметки</button>
+          <textarea id="sessionNotes" rows="5" placeholder="Самочувствие, сон, боль, что поменять в следующий раз" data-testid="session-notes-input"></textarea>
+          <button class="command-button secondary full" id="saveSessionNotes" type="button" data-testid="session-notes-save-button">Сохранить заметки</button>
         </section>
 
         <section class="history-panel">
@@ -112,26 +112,26 @@
               <div class="section-label">История</div>
               <h2>Последние сессии</h2>
             </div>
-            <button class="mini-button" id="historyRefresh" type="button">Обновить</button>
+            <button class="mini-button" id="historyRefresh" type="button" data-testid="history-refresh-button">Обновить</button>
           </div>
-          <div class="history-list" id="historyList"></div>
+          <div class="history-list" id="historyList" data-testid="history-list"></div>
         </section>
       </aside>
     </div>
 
-    <div class="settings-backdrop" id="settingsPanel" hidden>
+    <div class="settings-backdrop" id="settingsPanel" hidden data-testid="settings-panel">
       <section class="settings-drawer" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
         <div class="panel-head">
           <div>
             <div class="section-label">Настройки</div>
             <h2 id="settingsTitle">Данные</h2>
           </div>
-          <button class="icon-button" id="settingsClose" type="button" aria-label="Закрыть настройки" title="Закрыть настройки">×</button>
+          <button class="icon-button" id="settingsClose" type="button" aria-label="Закрыть настройки" title="Закрыть настройки" data-testid="settings-close-button">×</button>
         </div>
         <p>Данные хранятся локально на этом устройстве. Резервная копия помогает сохранить прогресс перед экспериментами или переносом проекта.</p>
         <div class="settings-actions">
-          <button class="command-button primary" id="backupDb" type="button">Создать резервную копию</button>
-          <a class="command-link" href="/api/export-db">Скачать файл данных</a>
+          <button class="command-button primary" id="backupDb" type="button" data-testid="backup-create-button">Создать резервную копию</button>
+          <a class="command-link" href="/api/export-db" data-testid="database-export-link">Скачать файл данных</a>
         </div>
       </section>
     </div>
@@ -151,9 +151,9 @@
         </div>
         <div class="set-grid"></div>
         <div class="exercise-actions">
-          <button class="command-button secondary fill-empty" type="button">Заполнить пустые</button>
-          <button class="command-button secondary add-set" type="button">Добавить подход</button>
-          <input class="exercise-note" type="text" placeholder="Заметка по упражнению">
+          <button class="command-button secondary fill-empty" type="button" data-testid="exercise-fill-empty-button">Заполнить пустые</button>
+          <button class="command-button secondary add-set" type="button" data-testid="exercise-add-set-button">Добавить подход</button>
+          <input class="exercise-note" type="text" placeholder="Заметка по упражнению" data-testid="exercise-note-input">
         </div>
       </article>
     </template>
